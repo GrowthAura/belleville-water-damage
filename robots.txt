@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://growthaura.github.io/belleville-water-damage/sitemap.xml
