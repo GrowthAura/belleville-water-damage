@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.base),
   title: SITE.metaTitle,
   description: SITE.metaDescription,
-  robots: { index: true, follow: true },
   icons: { icon: `${ASSET_PREFIX}/favicon.svg` },
   openGraph: {
     type: "website",

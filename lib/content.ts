@@ -29,16 +29,72 @@ export const SITE = {
 // the GitHub Pages build passes "/belleville-water-damage".
 export const ASSET_PREFIX = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
+// Absolute URL for an asset path. Asset srcs already carry ASSET_PREFIX
+// (plain <img> tags need it), while SITE.base already ends with the
+// subpath on a Pages deploy — joining both naively doubles the subpath
+// (og:image 404 on 17/20 pages, found by fill QA 2026-11-12). Strip the
+// prefix from the path first so the join happens exactly once; on a
+// root/apex build ASSET_PREFIX is "" and this is a plain SITE.base + path.
+export function absoluteAsset(path: string): string {
+  const p =
+    ASSET_PREFIX && path.startsWith(ASSET_PREFIX)
+      ? path.slice(ASSET_PREFIX.length)
+      : path;
+  return SITE.base + p;
+}
+
 // Shared schema.org nodes (Round 3 Gate 9): every page emits ONE @graph
 // with @id-linked nodes instead of separate scripts. All values come from
 // SITE / the Doc — nothing invented. No street address exists in the Doc,
 // so PostalAddress carries locality/region/postalCode only.
+
+// St. Clair County node — the one doc-grounded AdministrativeArea
+// (doc: "St. Clair County" 3x). Shared by the business node and all 16
+// Service nodes (Cycle 1 schema fix #2).
+export const COUNTY_AREA_SERVED = {
+  "@type": "AdministrativeArea",
+  name: "St. Clair County",
+  addressRegion: "IL",
+} as const;
+
+// ImageObject for a hero image (Cycle 1 schema fix #8). All 17 hero files
+// measure exactly 1600x900 (PIL-verified 2026-11-13); caption is the
+// visible alt text of that hero. contentUrl is the absolute asset URL.
+export function heroImageObject(key: string) {
+  const img = HERO_IMAGE[key];
+  return {
+    "@type": "ImageObject",
+    contentUrl: absoluteAsset(img.src),
+    width: 1600,
+    height: 900,
+    caption: img.alt,
+    // Cycle 2 fix #5: ImageObject is a CreativeWork; caption is English.
+    inLanguage: "en",
+  };
+}
+
 export function schemaBusiness() {
   return {
     "@type": "HomeAndConstructionBusiness",
     "@id": SITE.base + "/#business",
     name: SITE.brand,
+    // Cycle 2 fix #1: the doc's actual company name (Tab 19 About eyebrow
+    // "SIGNAL HILL RESTORATION CO." + opening sentence "Signal Hill
+    // Restoration Co. is a water damage company in Belleville, IL.").
+    // alternateName, NOT legalName — the doc states no legal-entity status.
+    alternateName: "Signal Hill Restoration Co.",
+    description: SITE.metaDescription,
+    image: heroImageObject("home"),
     telephone: SITE.phoneTel,
+    // Cycle 1 fix #6: the doc's only contact channel, in structured form.
+    // contactType "emergency" is doc-grounded (Emergency 24/7 Crew,
+    // "Answered 24/7"); no "customer service" label invented.
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: SITE.phoneTel,
+      contactType: "emergency",
+      availableLanguage: "en",
+    },
     url: SITE.base + "/",
     address: {
       "@type": "PostalAddress",
@@ -46,13 +102,43 @@ export function schemaBusiness() {
       addressRegion: SITE.state,
       postalCode: SITE.zips[0],
     },
-    areaServed: SITE.zips.map((zip) => ({
-      "@type": "City",
-      name: SITE.city,
-      addressRegion: SITE.state,
-      postalCode: zip,
-    })),
-    openingHours: "Mo-Su 00:00-24:00",
+    areaServed: [
+      ...SITE.zips.map((zip) => ({
+        "@type": "City",
+        name: SITE.city,
+        addressRegion: SITE.state,
+        postalCode: zip,
+      })),
+      COUNTY_AREA_SERVED,
+    ],
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "00:00",
+      closes: "24:00",
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Water damage services in Belleville",
+      // Cycle 1 fix #7: pure count of visible items (16 services).
+      numberOfItems: SERVICES.length,
+      itemListElement: SERVICES.map((s) => ({
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: s.anchor,
+          url: SITE.base + "/services/" + s.slug,
+        },
+      })),
+    },
   };
 }
 
@@ -62,6 +148,10 @@ export function schemaWebSite() {
     "@id": SITE.base + "/#website",
     name: SITE.brand,
     url: SITE.base + "/",
+    // Cycle 1 fix #4: doc meta description (Tab 1), already the business
+    // description — a traced literal, no invention.
+    description: SITE.metaDescription,
+    inLanguage: "en",
   };
 }
 
@@ -367,7 +457,10 @@ export const FINAL_CTA = {
 
 export const ALL_ROUTES: string[] = [
   "/",
+  "/services",
   ...SERVICES.map((s) => `/services/${s.slug}`),
+  "/about",
+  "/contact",
 ];
 
 // Images: REAL Pexels photography, fresh for Belleville only — zero reuse
@@ -382,27 +475,27 @@ export type PageImage = { src: string; alt: string };
 export const HERO_IMAGE: Record<string, PageImage> = {
   home: {
     src: ASSET_PREFIX + "/images/heroes/home.webp",
-    alt: "Aerial view of a town with residential buildings surrounded by floodwater",
+    alt: "A living room with standing floodwater across the floor, reflecting a leather sofa and a table lamp",
   },
   "emergency-water-removal": {
     src: ASSET_PREFIX + "/images/heroes/emergency-water-removal.webp",
-    alt: "Man vacuuming a living room floor while a family relaxes on a sofa",
+    alt: "Industrial wet/dry vacuum with hose standing on a wood floor in a room under repair",
   },
   "basement-flood-cleanup": {
     src: ASSET_PREFIX + "/images/heroes/basement-flood-cleanup.webp",
-    alt: "Empty basement with exposed wooden beams, concrete walls and stairs",
+    alt: "Unfinished basement with exposed ceiling joists, wood-framed walls, a concrete floor and a white door",
   },
   "sewer-backup-cleanup": {
     src: ASSET_PREFIX + "/images/heroes/sewer-backup-cleanup.webp",
-    alt: "Steel storm drain grate in wet asphalt beside a white painted road line",
+    alt: "A plumber's hands tightening a drain fitting on the pipes under a sink",
   },
   "sump-pump-failure-cleanup": {
     src: ASSET_PREFIX + "/images/heroes/sump-pump-failure-cleanup.webp",
-    alt: "Empty unfinished basement with concrete floor and bare walls",
+    alt: "A blue electric water pump with black hoses on a wet concrete floor",
   },
   "burst-pipe-water-damage": {
     src: ASSET_PREFIX + "/images/heroes/burst-pipe-water-damage.webp",
-    alt: "Frozen water pouring from copper pipes on a brick wall",
+    alt: "A hand gripping yellow-handled pliers on a pipe fitting beside a white water heater",
   },
   "mold-remediation": {
     src: ASSET_PREFIX + "/images/heroes/mold-remediation.webp",
@@ -410,11 +503,11 @@ export const HERO_IMAGE: Record<string, PageImage> = {
   },
   "flood-damage-restoration": {
     src: ASSET_PREFIX + "/images/heroes/flood-damage-restoration.webp",
-    alt: "Flooded residential street with a car standing in brown floodwater",
+    alt: "Large dark water stain spreading across a damaged interior wall",
   },
   "ceiling-water-damage-repair": {
     src: ASSET_PREFIX + "/images/heroes/ceiling-water-damage-repair.webp",
-    alt: "Worker on stilts sanding a ceiling during a home renovation",
+    alt: "A ceiling with a large section of plaster collapsed to the wooden lath after water damage, above a lived-in room",
   },
   "drywall-plaster-water-damage-repair": {
     src: ASSET_PREFIX + "/images/heroes/drywall-plaster-water-damage-repair.webp",
@@ -422,11 +515,11 @@ export const HERO_IMAGE: Record<string, PageImage> = {
   },
   "hardwood-floor-water-damage": {
     src: ASSET_PREFIX + "/images/heroes/hardwood-floor-water-damage.webp",
-    alt: "Newly refinished hardwood floor in an empty room",
+    alt: "Water splashing and pooling across wet wooden floorboards",
   },
   "crawl-space-water-removal": {
     src: ASSET_PREFIX + "/images/heroes/crawl-space-water-removal.webp",
-    alt: "Water flowing from a drain pipe set into a red brick wall",
+    alt: "Exposed wooden floor joists and a stone wall in a low under-house crawl space lit by hanging bulbs",
   },
   "water-heater-appliance-leak-cleanup": {
     src: ASSET_PREFIX + "/images/heroes/water-heater-appliance-leak-cleanup.webp",
@@ -434,15 +527,15 @@ export const HERO_IMAGE: Record<string, PageImage> = {
   },
   "toilet-overflow-cleanup": {
     src: ASSET_PREFIX + "/images/heroes/toilet-overflow-cleanup.webp",
-    alt: "Hand operating a chrome faucet with running water in a bathroom",
+    alt: "Water swirling inside a toilet bowl, viewed from above",
   },
   "commercial-water-damage-restoration": {
     src: ASSET_PREFIX + "/images/heroes/commercial-water-damage-restoration.webp",
-    alt: "Metal ladder standing beside buckets of paint and plaster in a room under renovation",
+    alt: "A worker using a wet/dry vacuum to clean the carpet in a modern office",
   },
   "apartment-rental-water-damage": {
     src: ASSET_PREFIX + "/images/heroes/apartment-rental-water-damage.webp",
-    alt: "Bathroom with a toilet and sink in an apartment",
+    alt: "Water-damaged ceiling and walls with peeling paint and crumbling plaster in an old apartment interior",
   },
   "water-damage-insurance-claims": {
     src: ASSET_PREFIX + "/images/heroes/water-damage-insurance-claims.webp",
@@ -453,31 +546,36 @@ export const HERO_IMAGE: Record<string, PageImage> = {
 export const CARD_IMAGE: Record<string, PageImage> = {
   "emergency-water-removal": {
     src: ASSET_PREFIX + "/images/cards/emergency-water-removal.webp",
-    alt: "Man vacuuming a bedroom floor with a vacuum cleaner",
+    alt: "Industrial wet/dry vacuum with hose standing on a wood floor in a room under repair",
   },
   "basement-flood-cleanup": {
     src: ASSET_PREFIX + "/images/cards/basement-flood-cleanup.webp",
-    alt: "Aerial view of small village houses standing in floodwater",
+    alt: "Unfinished basement with exposed ceiling joists, wood-framed walls, a concrete floor and a white door",
   },
   "sewer-backup-cleanup": {
     src: ASSET_PREFIX + "/images/cards/sewer-backup-cleanup.webp",
-    alt: "Close-up of a chrome sink drain with water droplets",
+    alt: "A plumber's hands tightening a drain fitting on the pipes under a sink",
   },
   "sump-pump-failure-cleanup": {
     src: ASSET_PREFIX + "/images/cards/sump-pump-failure-cleanup.webp",
-    alt: "Vintage pipe wrench lying on a rustic wooden surface",
+    alt: "A blue pipe with a red shutoff valve wheel on a white wall",
   },
   "burst-pipe-water-damage": {
     src: ASSET_PREFIX + "/images/cards/burst-pipe-water-damage.webp",
     alt: "Water flowing from industrial pipes against a clear sky",
   },
-  "mold-remediation": {
-    src: ASSET_PREFIX + "/images/cards/mold-remediation.webp",
-    alt: "Cleaner in a white protective suit wiping a floor",
-  },
+  // CYCLE 1 FIX 2026-11-13 (qa/CYCLE1-images-audit-2026-11-13.md P1-2):
+  // mold-remediation card REMOVED — Pexels 4099087 is Broken Arrow's LIVE
+  // homepage card + sewage hero (same photo, viewed full-size). No fresh
+  // mold photo passed full nets (all Pexels mold candidates are the same
+  // 4098xxx shoot as the banned photo, or the same Buonarroti fogging
+  // shoot as our own mold hero 4176610) — slot honestly EMPTY. The
+  // homepage renders the mold card without an image (page.tsx guards
+  // CARD_IMAGE[slug]); the sitemap skips unwired cards. File quarantined
+  // in qa/removed-cycle1/mold-remediation.webp. Do NOT re-add 4099087.
   "flood-damage-restoration": {
     src: ASSET_PREFIX + "/images/cards/flood-damage-restoration.webp",
-    alt: "Road closed sign standing in a flooded street",
+    alt: "Large dark water stain spreading across a damaged interior wall",
   },
   "ceiling-water-damage-repair": {
     src: ASSET_PREFIX + "/images/cards/ceiling-water-damage-repair.webp",
@@ -489,31 +587,31 @@ export const CARD_IMAGE: Record<string, PageImage> = {
   },
   "hardwood-floor-water-damage": {
     src: ASSET_PREFIX + "/images/cards/hardwood-floor-water-damage.webp",
-    alt: "Close-up of a rustic wooden floor with staggered planks",
+    alt: "Water splashing and pooling across wet wooden floorboards",
   },
   "crawl-space-water-removal": {
     src: ASSET_PREFIX + "/images/cards/crawl-space-water-removal.webp",
-    alt: "Close-up of a metal pipe covered in water drops",
+    alt: "Exposed wooden floor joists and a stone wall in a low under-house crawl space lit by hanging bulbs",
   },
   "water-heater-appliance-leak-cleanup": {
     src: ASSET_PREFIX + "/images/cards/water-heater-appliance-leak-cleanup.webp",
-    alt: "Plumber installing a radiator pipe with specialised tools",
+    alt: "Technician in gloves servicing a wall-mounted water heater with copper pipes",
   },
   "toilet-overflow-cleanup": {
     src: ASSET_PREFIX + "/images/cards/toilet-overflow-cleanup.webp",
-    alt: "Contemporary bathroom with a toilet, black and white tiles and a large mirror",
+    alt: "Water swirling inside a toilet bowl, viewed from above",
   },
   "commercial-water-damage-restoration": {
     src: ASSET_PREFIX + "/images/cards/commercial-water-damage-restoration.webp",
-    alt: "Person in protective gear sanitizing a living room",
+    alt: "A worker using a wet/dry vacuum to clean the carpet in a modern office",
   },
   "apartment-rental-water-damage": {
     src: ASSET_PREFIX + "/images/cards/apartment-rental-water-damage.webp",
-    alt: "Modern white marble bathroom with a bathtub, bidet and toilet",
+    alt: "Water-damaged ceiling and walls with peeling paint and crumbling plaster in an old apartment interior",
   },
   "water-damage-insurance-claims": {
     src: ASSET_PREFIX + "/images/cards/water-damage-insurance-claims.webp",
-    alt: "Two people signing an insurance policy document on a wooden desk",
+    alt: "A woman holding a clipboard headed Home Insurance Policy, with a smiling couple standing behind her",
   },
 };
 

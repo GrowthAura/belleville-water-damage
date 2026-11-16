@@ -1,10 +1,12 @@
 import { SITE, SERVICES } from "@/lib/content";
+import { TAB_PAGES } from "@/lib/tab-pages";
 
 // Next 16 static export: metadata routes need explicit force-static.
 export const dynamic = "force-static";
 
-// llms.txt — generated from SITE/SERVICES so its URLs always carry the
-// real deploy base (the old static public/llms.txt hardcoded localhost).
+// llms.txt — generated from SITE/SERVICES/TAB_PAGES so its URLs always
+// carry the real deploy base (the old static public/llms.txt hardcoded
+// localhost). Page titles are each tab's verbatim H1.
 export async function GET() {
   const lines = [
     `# ${SITE.brand}`,
@@ -18,9 +20,12 @@ export async function GET() {
     "## Pages",
     "",
     `- [24/7 Emergency Water Damage Restoration in Belleville, IL](${SITE.base}/)`,
+    `- [${TAB_PAGES["services"].h1}](${SITE.base}/services)`,
     ...SERVICES.map(
-      (s) => `- [${s.anchor} in Belleville, IL](${SITE.base}/services/${s.slug})`,
+      (s) => `- [${TAB_PAGES[s.slug].h1}](${SITE.base}/services/${s.slug})`,
     ),
+    `- [${TAB_PAGES["about"].h1}](${SITE.base}/about)`,
+    `- [${TAB_PAGES["contact"].h1}](${SITE.base}/contact)`,
     "",
   ];
   return new Response(lines.join("\n"), {

@@ -1,13 +1,19 @@
 /* Belleville IL — fresh stylesheet, written new for this site.
    Palette (fresh for Belleville: old brick / plaster / brass):
    brick #7a2e1d / brick-dark #5c2113, brass #a5762a / #8a5f1e,
-   paper #faf6ef, sand #f1e9d8, ink #26221e, line #ddd3c0. */
+   paper #faf6ef, sand #f1e9d8, ink #26221e, line #ddd3c0.
+   DESIGN 10x ROUND 2026-11-13: same palette and type families, refined
+   hierarchy, spacing and surface treatment throughout. No words, links,
+   routes or images change in this file — presentation only. */
 
 :root {
   --brick: #7a2e1d;
   --brick-dark: #5c2113;
+  --brick-deep: #2b120a;
   --brass: #a5762a;
   --brass-dark: #8a5f1e;
+  --gold-light: #f0d9a8;
+  --cream: #f7f1e6;
   --paper: #faf6ef;
   --sand: #f1e9d8;
   --mist: #efe9dc;
@@ -21,14 +27,25 @@
 
 html { scroll-behavior: smooth; }
 
+::selection { background: var(--brass); color: var(--white); }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.7;
   color: var(--ink);
-  background: var(--white);
+  background: var(--paper);
 }
+
+/* Visible keyboard focus everywhere. Brass-dark on light surfaces
+   (5.62:1); pale gold on the dark hero / CTA / footer surfaces. */
+:focus-visible { outline: 3px solid var(--brass-dark); outline-offset: 2px; }
+.hero :focus-visible,
+.final-cta :focus-visible,
+.tab-cta :focus-visible,
+.site-footer :focus-visible,
+.trust-band :focus-visible { outline-color: var(--gold-light); }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: Georgia, "Times New Roman", serif;
@@ -36,23 +53,24 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--brick);
   margin: 0 0 12px;
 }
-h1 { font-size: 44px; }
-h2 { font-size: 32px; margin-top: 8px; }
-.section h2::after {
-  content: ""; display: block; width: 72px; height: 4px; margin-top: 12px;
+h1 { font-size: 48px; line-height: 1.12; letter-spacing: -0.5px; }
+h2 { font-size: 34px; letter-spacing: -0.3px; margin: 0 0 16px; }
+.section h2::after,
+.tab-section h2::after {
+  content: ""; display: block; width: 72px; height: 4px; margin-top: 14px;
   background: var(--brass); border-radius: 2px;
 }
 .final-cta h2::after { margin-left: auto; margin-right: auto; }
 h3 { font-size: 24px; color: var(--brick-dark); }
-p { margin: 0 0 16px; }
-ul, ol { margin: 0 0 16px; padding-left: 24px; }
-li { margin-bottom: 8px; }
+p { margin: 0 0 18px; line-height: 1.75; }
+ul, ol { margin: 0 0 18px; padding-left: 24px; }
+li { margin-bottom: 10px; }
 li::marker { color: var(--brass-dark); }
-a { color: var(--brick); }
+a { color: var(--brick); text-underline-offset: 3px; }
 a:hover { color: var(--brass-dark); }
 
 .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-.section { padding: 56px 0; }
+.section { padding: 72px 0; border-top: 1px solid var(--line); }
 /* Wide-text rule (Round 3): body text lines max 88ch so long paragraphs
    stay readable at desktop width. Only constrains paragraphs wider than
    88ch; cards/steps/FAQ items are already narrower. .final-cta p (820px)
@@ -60,27 +78,36 @@ a:hover { color: var(--brass-dark); }
 .section p, .section li { max-width: 88ch; }
 .section.alt { background: var(--mist); }
 .section.sand { background: var(--sand); }
-.lead { font-size: 18px; }
+.lead { font-size: 19px; }
 
 /* ---------- header ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
   background: var(--white);
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 2px 12px rgba(38, 34, 30, 0.06);
 }
 .header-inner { display: flex; align-items: center; gap: 24px; min-height: 72px; flex-wrap: nowrap; }
 .site-header .wrap { max-width: 1240px; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--brick); flex-shrink: 0; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--brick); flex-shrink: 0; padding: 2px 0; } /* UIUX-AZ P3-11: 43px -> ~47px tap target (>=44px) */
+.brand-mark {
+  display: flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: var(--sand); border: 1px solid var(--line); border-radius: 50%;
+}
 .brand-text { font-size: 18px; font-weight: 800; line-height: 1.2; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 .brand-city { display: block; font-size: 18px; font-weight: 700; color: var(--brass-dark); }
 .main-nav { display: flex; gap: 20px; margin-left: auto; flex-wrap: wrap; }
-.main-nav a { font-size: 18px; text-decoration: none; color: var(--ink); font-weight: 600; white-space: nowrap; }
-.main-nav a:hover { color: var(--brick); text-decoration: underline; }
+.main-nav a { font-size: 18px; text-decoration: none; color: var(--ink); font-weight: 600; white-space: nowrap; padding: 12px 2px; }
+.main-nav a:hover { color: var(--brick); text-decoration: underline; text-underline-offset: 4px; }
 .header-phone {
   font-size: 18px; font-weight: 800; color: var(--white); background: var(--brick-dark);
-  text-decoration: none; padding: 10px 18px; border-radius: 12px; white-space: nowrap;
+  text-decoration: none; padding: 12px 18px; border-radius: 12px; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(92, 33, 19, 0.28);
+  transition: background .2s ease, transform .15s ease;
 }
 .header-phone:hover { background: #431708; color: var(--white); }
+.header-phone:active { transform: translateY(1px); }
 .menu-btn { display: none; }
 
 /* ---------- buttons: Button 1 and Button 2 are EXACTLY equal ----------
@@ -91,21 +118,36 @@ a:hover { color: var(--brass-dark); }
   font-size: 19px; font-weight: 700; line-height: 1.2;
   border-radius: 12px; text-decoration: none; border: 2px solid transparent;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background .2s ease, transform .15s ease, box-shadow .2s ease;
 }
-.btn-call { background: var(--brick-dark); color: var(--white); }
+.btn:active { transform: translateY(1px); }
+.btn-call { background: var(--brick-dark); color: var(--white); box-shadow: 0 6px 16px rgba(43, 18, 10, 0.35); }
 .btn-call:hover { background: #431708; color: var(--white); }
-.btn-help { background: var(--white); color: var(--brick-dark); border-color: var(--brick-dark); }
+.btn-help { background: var(--white); color: var(--brick-dark); border-color: var(--brick-dark); box-shadow: 0 6px 16px rgba(43, 18, 10, 0.18); }
 .btn-help:hover { background: var(--sand); color: var(--brick-dark); }
-.hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; margin: 28px 0 0; max-width: 660px; }
+.hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; margin: 32px 0 0; max-width: 660px; }
 .hero-buttons .btn { flex: 1 1 0; min-width: 0; }
 
 /* ---------- hero ---------- */
-.hero { background: var(--brick); color: var(--white); padding: 64px 0 72px; position: relative; overflow: hidden; }
+.hero { background: var(--brick); color: var(--white); padding: 76px 0 84px; position: relative; overflow: hidden; border-bottom: 6px solid var(--brass); }
 .hero .wrap { position: relative; z-index: 1; }
-.eyebrow { font-size: 18px; font-weight: 800; letter-spacing: 2px; color: #f0d9a8; margin: 0 0 16px; }
-.hero h1 { color: var(--white); max-width: 880px; }
-.hero p.intro { color: #f7f1e6; max-width: 72ch; }
-.hero-photo { padding: 72px 0 64px; background: #2b120a; }
+.eyebrow { font-size: 18px; font-weight: 800; letter-spacing: 2.5px; color: var(--gold-light); margin: 0 0 18px; }
+.eyebrow::before {
+  content: ""; display: inline-block; width: 36px; height: 3px;
+  background: var(--brass); border-radius: 2px;
+  vertical-align: middle; margin-right: 12px;
+}
+.hero h1 { color: var(--white); max-width: 820px; margin-bottom: 18px; }
+.hero p.intro { color: var(--cream); max-width: 68ch; font-size: 19px; line-height: 1.65; margin-bottom: 0; }
+.hero-photo { padding: 76px 0 84px; background: var(--brick-deep); }
+/* No-photo hero (Services hub / About / Contact): the same brick, given
+   depth with brick-toned light only — no new hue, no photo borrowed. */
+.hero-solid {
+  background:
+    radial-gradient(1200px 520px at 18% -10%, #8a3a24 0%, rgba(138, 58, 36, 0) 60%),
+    radial-gradient(900px 440px at 96% 112%, #6b2718 0%, rgba(107, 39, 24, 0) 55%),
+    var(--brick);
+}
 .hero-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center 35%;
@@ -113,103 +155,252 @@ a:hover { color: var(--brass-dark); }
 .hero-shade {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(43,18,10,.62) 0%, rgba(43,18,10,.45) 55%, rgba(43,18,10,.68) 100%),
-    linear-gradient(90deg, rgba(43,18,10,.38) 0%, rgba(43,18,10,.08) 60%, rgba(43,18,10,.30) 100%);
+    linear-gradient(180deg, rgba(43,18,10,.66) 0%, rgba(43,18,10,.48) 55%, rgba(43,18,10,.72) 100%),
+    linear-gradient(90deg, rgba(43,18,10,.45) 0%, rgba(43,18,10,.10) 60%, rgba(43,18,10,.32) 100%);
 }
 .hero-content { position: relative; z-index: 1; }
-.hero-photo .breadcrumb { margin-bottom: 18px; }
-.hero-photo .breadcrumb a { color: #f0d9a8; }
-.hero-photo .breadcrumb li { color: #f7f1e6; }
+.hero-photo .breadcrumb { margin-bottom: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
+.hero-photo .breadcrumb a { color: var(--gold-light); font-weight: 700; }
+.hero-photo .breadcrumb li { color: var(--cream); }
 .hero-photo .breadcrumb li + li::before { color: rgba(255,255,255,.6); }
-.trust-band { background: var(--brick); color: var(--white); padding: 18px 0; }
-.trust-band p { text-align: center; font-size: 18px; font-weight: 700; margin: 0; }
+.trust-band { background: var(--brick-dark); color: var(--white); padding: 20px 0; border-top: 3px solid var(--brass); }
+.trust-band p {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 28px;
+  text-align: center; font-size: 18px; font-weight: 700; margin: 0;
+}
+.trust-band p span { white-space: nowrap; }
 
 /* ---------- cards ---------- */
-.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 32px; }
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 36px; }
 .card {
-  border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--line); border-top: 4px solid var(--brass); border-radius: 16px; overflow: hidden;
   background: var(--white); display: flex; flex-direction: column;
+  box-shadow: 0 1px 3px rgba(38, 34, 30, 0.08);
   transition: transform .25s ease, box-shadow .25s ease;
 }
-.card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(122,46,29,.16); }
+.card:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(122,46,29,.18); }
 /* Photographic card image. 16:9, height auto with aspect-ratio
    (width/height attrs alone must never set the box height). */
-.card-img { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; }
-.card-body { padding: 20px 20px 24px; display: flex; flex-direction: column; flex: 1; }
+.card-img { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; border-bottom: 1px solid var(--line); }
+.card-body { padding: 22px 22px 26px; display: flex; flex-direction: column; flex: 1; }
 .card-body h3 { font-size: 24px; margin-bottom: 8px; }
 .card-body p { flex: 1; }
-.card-title { font-size: 20px; font-weight: 800; color: var(--brick-dark); font-family: Georgia, "Times New Roman", serif; margin: 0 0 8px; }
-.card-link { font-size: 18px; font-weight: 700; color: var(--brick); }
-.card-link:hover { color: var(--brass-dark); }
-.group-block { margin-top: 32px; }
-.group-block .card-grid { margin-top: 20px; }
+/* Cycle 1 fix I-1: grouped card titles match individual card titles
+   (24px sans, weight 800) — the same grid had two title treatments. */
+.card-title { font-size: 24px; font-weight: 800; color: var(--brick-dark); font-family: inherit; margin: 0 0 8px; }
+.card-link { display: inline-flex; align-items: center; min-height: 44px; font-size: 18px; font-weight: 700; color: var(--brick); text-underline-offset: 4px; }
+.card-link:hover { color: var(--brass-dark); text-decoration: underline; }
+.group-block { margin-top: 44px; }
+.group-block .card-grid { margin-top: 24px; }
+.group-block h3 { font-size: 26px; }
+.group-block h3::after {
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 10px;
+  background: var(--brass); border-radius: 2px;
+}
 
 /* ---------- two-column blocks ---------- */
-.split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
-.area-card { border: 1px solid var(--line); border-radius: 14px; padding: 24px; background: var(--white); }
-.area-card h3 { margin-bottom: 8px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px; }
+.area-card {
+  border: 1px solid var(--line); border-top: 4px solid var(--brass); border-radius: 16px;
+  padding: 28px; background: var(--white);
+  box-shadow: 0 1px 3px rgba(38, 34, 30, 0.08);
+}
+.area-card h3 { margin-bottom: 10px; }
+.area-card p:last-child { margin-bottom: 0; }
 
 /* ---------- process steps ---------- */
-.steps { list-style: none; padding: 0; margin: 32px 0 0; counter-reset: step; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.steps { list-style: none; padding: 0; margin: 36px 0 0; counter-reset: step; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .steps li {
-  counter-increment: step; margin: 0; padding: 20px 20px 20px 68px; position: relative;
-  border: 1px solid var(--line); border-radius: 14px; background: var(--white);
+  counter-increment: step; margin: 0; padding: 24px 24px 24px 84px; position: relative;
+  border: 1px solid var(--line); border-radius: 16px; background: var(--white);
+  box-shadow: 0 1px 3px rgba(38, 34, 30, 0.08);
+  transition: transform .25s ease, box-shadow .25s ease;
 }
+.steps li:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(122,46,29,.14); }
 .steps li::before {
-  content: counter(step); position: absolute; left: 16px; top: 18px;
-  width: 36px; height: 36px; border-radius: 50%; background: var(--brick); color: var(--white);
-  display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800;
+  content: counter(step); position: absolute; left: 20px; top: 22px;
+  width: 44px; height: 44px; border-radius: 50%; background: var(--brick); color: var(--white);
+  display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800;
+  box-shadow: 0 0 0 4px var(--sand);
 }
-.steps li h3 { margin-bottom: 6px; }
+.steps li h3 { font-size: 22px; margin-bottom: 6px; }
 .steps li p:last-child { margin-bottom: 0; }
+/* Cycle 1 fix I-5: with 5 steps in a 2-col grid the 5th sat orphaned
+   alone in row 3 — span it full width at desktop. (At <=900px the grid
+   is 1-col, so this is a no-op there.) */
+.steps li:last-child { grid-column: 1 / -1; }
 
 /* ---------- FAQ ---------- */
-.faq-list { margin-top: 24px; }
-.faq-item { border: 1px solid var(--line); border-radius: 14px; background: var(--white); padding: 20px 24px; margin-bottom: 16px; }
-.faq-item h3 { margin-bottom: 6px; }
+.faq-list { margin-top: 28px; }
+.faq-item {
+  border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: 14px;
+  background: var(--white); padding: 24px 28px; margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(38, 34, 30, 0.08);
+}
+.faq-item h3 { font-size: 22px; margin-bottom: 8px; }
 .faq-item p:last-child { margin-bottom: 0; }
 
 /* ---------- final CTA ---------- */
-.final-cta { background: var(--brick); color: var(--white); text-align: center; }
-.final-cta h2 { color: var(--white); }
-.final-cta p { color: #f7f1e6; max-width: 820px; margin-left: auto; margin-right: auto; }
+.final-cta {
+  background:
+    radial-gradient(1100px 480px at 20% -10%, #8a3a24 0%, rgba(138, 58, 36, 0) 60%),
+    radial-gradient(900px 420px at 95% 112%, #6b2718 0%, rgba(107, 39, 24, 0) 55%),
+    var(--brick);
+  color: var(--white); text-align: center; border-top: 6px solid var(--brass);
+}
+.final-cta h2 { color: var(--white); font-size: 36px; }
+.final-cta p { color: var(--cream); max-width: 820px; margin-left: auto; margin-right: auto; font-size: 19px; }
 .final-cta .hero-buttons { justify-content: center; margin-left: auto; margin-right: auto; }
 
 /* ---------- inner pages ---------- */
 .page-head { background: var(--sand); padding: 48px 0 40px; border-bottom: 1px solid var(--line); }
 .page-head h1 { max-width: 880px; }
-.page-body { padding: 40px 0 64px; }
-.page-body .wrap > p, .page-body .wrap > ul { max-width: 820px; }
+/* Tab pages are grouped into one .tab-section per H2 (see tab-page.tsx):
+   each section carries its own rhythm instead of one flat stack. */
+.page-body { padding: 0; }
+.tab-section { padding: 56px 0; }
+.tab-section + .tab-section { border-top: 1px solid var(--line); }
+.tab-section.alt { background: var(--sand); }
+.tab-section h2 { margin-top: 0; }
+.tab-section h2 + h3 { margin-top: 20px; }
+.tab-section p + h3 { margin-top: 32px; }
+
+/* ---------- media-split: body image beside its tab-section text ----------
+   Markup contract (wiring emits exactly this): .media-split wraps
+   .media-text (h3/p blocks) + figure.media-figure (one 3:2 img).
+   Desktop: text ~1.05fr, image 1fr, 32px gap. .media-left puts the image
+   on the left by grid placement only — DOM order never changes, so
+   mobile always reads text first, image after. */
+.media-split {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 32px;
+  align-items: start;
+  margin: 32px 0 0;
+}
+.media-split + h3 { margin-top: 36px; }
+.media-text, .media-figure { min-width: 0; }
+.media-text > :last-child { margin-bottom: 0; }
+.media-split.media-left .media-figure { grid-column: 1; grid-row: 1; }
+.media-split.media-left .media-text { grid-column: 2; grid-row: 1; }
+/* UIUX-AZ P3-12: left-placed images were 532px wide vs 507px on the right
+   (the figure sat in the 1.05fr column). Swap the template on .media-left
+   so the IMAGE column is always 1fr and the TEXT column always 1.05fr. */
+.media-split.media-left { grid-template-columns: 1fr 1.05fr; }
+.media-figure { margin: 0; }
+.media-figure img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(38, 34, 30, 0.08);
+}
+/* UIUX-AZ P3-13: on long text sections the image column sat empty below
+   the image. Desktop only: pin the figure under the sticky header (72px)
+   while its section's text scrolls past. Grid item + align-items:start
+   gives the sticky room to move inside the row. Mobile (single column)
+   is untouched — the figure follows the text there. */
+@media (min-width: 769px) {
+  .media-figure { position: sticky; top: 96px; }
+}
+/* Mobile: single column, DOM order = text first, image after — for both
+   .media-right and .media-left. Grid placement is reset so the left
+   variant cannot stay side-by-side or swap the reading order. */
+@media (max-width: 768px) {
+  .media-split { grid-template-columns: 1fr; gap: 24px; margin-top: 28px; }
+  .media-split.media-left .media-figure,
+  .media-split.media-left .media-text { grid-column: auto; grid-row: auto; }
+}
+/* Opening paragraph of the first section reads as a lead. */
+.tab-section:first-child p:first-of-type { font-size: 19px; line-height: 1.7; }
+/* Wide-text rule (Round 3 D1) applies to the full tab bodies too: the old
+   820px cap is ~95ch at 18px, over the 88ch rule. 88ch keeps the long
+   service/hub/about/contact bodies readable at desktop width. */
+.page-body .wrap > p { max-width: 88ch; }
+.page-body .wrap > ul { max-width: 820px; }
+/* Closing CTA band: the page's equal buttons, given the same brick +
+   brass treatment as the hero so the long pages end on a clear action. */
+.tab-cta {
+  background:
+    radial-gradient(1100px 480px at 20% -10%, #8a3a24 0%, rgba(138, 58, 36, 0) 60%),
+    radial-gradient(900px 420px at 95% 112%, #6b2718 0%, rgba(107, 39, 24, 0) 55%),
+    var(--brick);
+  border-top: 6px solid var(--brass);
+  padding: 60px 0; text-align: center;
+}
+.tab-cta .hero-buttons { margin: 0 auto; justify-content: center; }
 .breadcrumb { margin-bottom: 20px; }
 .breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; }
 .breadcrumb li { margin: 0; font-size: 18px; }
 .breadcrumb li + li::before { content: "/"; margin-right: 6px; color: var(--muted); }
 
 /* ---------- footer ---------- */
-.site-footer { background: var(--brick-dark); color: #f0e6d6; margin-top: 0; }
-.footer-map iframe { display: block; width: 100%; height: 320px; border: 0; }
-.footer-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; padding: 48px 24px 32px; }
-.footer-brand { font-size: 18px; font-weight: 800; color: var(--white); }
-.footer-h { font-size: 18px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+.site-footer { background: var(--brick-dark); color: #f0e6d6; margin-top: 0; border-top: 4px solid var(--brass); }
+/* Cycle 1 fix I-8: if the Maps embed fails, the 320px iframe is a dark
+   void — a sand band + a map link underneath read as a band, not a hole. */
+.footer-map { border-bottom: 1px solid rgba(255, 255, 255, 0.15); background: var(--sand); }
+.footer-map iframe { display: block; width: 100%; height: 240px; border: 0; }
+.footer-map-fallback { margin: 0; padding: 12px 24px; text-align: center; font-size: 16px; font-weight: 700; }
+.footer-map-fallback a { color: var(--brick); }
+.footer-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 40px; padding: 56px 24px 40px; }
+.footer-brand { font-family: Georgia, "Times New Roman", serif; font-size: 21px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+.footer-h { font-size: 18px; font-weight: 800; color: var(--white); margin-bottom: 14px; letter-spacing: 0.5px; }
+.footer-h::after {
+  content: ""; display: block; width: 32px; height: 3px; margin-top: 8px;
+  background: var(--brass); border-radius: 2px;
+}
 .site-footer ul { list-style: none; padding: 0; margin: 0; }
-.site-footer li { margin-bottom: 8px; }
-.site-footer a { color: #f0e6d6; }
-.site-footer a:hover { color: #f0d9a8; }
+/* Cycle 1 fix I-3: the 16-link Services column ran ~800px and made the
+   footer 1,666px tall — two columns halve it. Single column again on
+   narrow screens so long anchors don't squeeze. */
+.site-footer nav[aria-label="Services"] ul { columns: 2; column-gap: 32px; }
+.site-footer nav[aria-label="Services"] li { break-inside: avoid; }
+.site-footer li { margin-bottom: 6px; }
+.site-footer a { color: #f0e6d6; display: inline-block; padding: 9px 0; } /* P3-3 fix 2026-11-13: 43px -> ~49px tap target (>=44px guideline); was 6px */
+/* Cycle 2 fix P3-1 (2026-11-14): the fallback rule at :348
+   (.footer-map-fallback a, brick) has the same specificity (0,1,1) as
+   .site-footer a above, so the LATER rule won and the link rendered cream
+   (#f0e6d6) on the sand band — contrast ~1:1, invisible. This rule has
+   higher specificity AND sits after .site-footer a, so brick wins. */
+.site-footer .footer-map-fallback a { color: var(--brick); }
+.site-footer a:hover { color: var(--gold-light); }
 .footer-base { border-top: 1px solid rgba(255,255,255,.2); padding: 20px 24px 96px; }
 .footer-base p { margin: 0; }
+/* P1-1 fix 2026-11-13: visible CC BY-SA photo credit (footer fine print).
+   The buckled-hardwood-floor body photo on the Hardwood Floor Water Damage
+   page is Wikimedia Commons File:Wasserschaden_Kölnisches_Stadtmuseum_
+   Juni_2017-5560.jpg (Raimond Spekking, CC BY-SA 4.0); the licence needs
+   attribution in visible text, not alt text alone. */
+.footer-credits { font-size: 13px; opacity: .8; margin-top: 10px; }
 
 /* ---------- sticky mobile call bar ---------- */
 .sticky-bar { display: none; }
 .sticky-bar a {
   display: block; text-align: center; background: var(--brick-dark); color: var(--white);
   font-size: 18px; font-weight: 800; text-decoration: none; padding: 16px 12px;
+  border-top: 3px solid var(--brass);
 }
 
 /* ---------- Tier 1 reveal: wrapper only — content is never hidden ---------- */
 .reveal { opacity: 1; }
 
+/* Cycle 1 fix I-7: on the hub, group H2s get a distinct treatment so
+   group 1's H2 ("Emergency water removal") no longer reads as a duplicate
+   of the H3 directly beneath it. Words unchanged — styling only. */
+.hub-page .tab-section h2 { font-size: 28px; color: var(--brick); }
+.hub-page .tab-section h2::after {
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 10px;
+  background: var(--brass); border-radius: 2px;
+}
 /* ---------- responsive overrides AFTER base rules ---------- */
 @media (max-width: 900px) {
+  h1 { font-size: 40px; }
+  .section { padding: 60px 0; }
+  .tab-section { padding: 48px 0; }
   .card-grid { grid-template-columns: repeat(2, 1fr); }
   .split { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
@@ -249,21 +440,66 @@ a:hover { color: var(--brass-dark); }
   .hero-content p.intro { order: 3; }
   h1 { font-size: 34px; }
   h2 { font-size: 28px; }
+  .final-cta h2 { font-size: 30px; }
   .card-grid { grid-template-columns: 1fr; }
-  .section { padding: 40px 0; }
-  .hero { padding: 48px 0 56px; }
+  .section { padding: 44px 0; }
+  .tab-section { padding: 40px 0; }
+  .tab-cta { padding: 44px 0; }
+  .hero { padding: 52px 0 60px; }
   .header-phone { padding: 8px 12px; }
   .header-inner { flex-wrap: wrap; }
   .brand { flex: 1 1 100%; }
   .footer-grid { grid-template-columns: 1fr; }
+  .site-footer nav[aria-label="Services"] ul { columns: 1; }
   .btn { width: 100%; }
   .hero-buttons { flex-direction: column; max-width: none; }
+  .steps li { padding: 20px 20px 20px 72px; }
+  .steps li::before { width: 40px; height: 40px; top: 20px; left: 16px; }
+  .faq-item { padding: 20px; }
+  .area-card { padding: 22px; }
+  .card-body { padding: 20px 20px 24px; }
+  .eyebrow::before { width: 28px; }
+  /* Cycle 2 fix I-2 (2026-11-14): eyebrow wrapped to 3 lines @390
+     (94.5px, "ILLINOIS" alone on line 3). Tighten at <=600px so it fits
+     in 2 lines; <=360px keeps its own tighter rule. */
+  .eyebrow { font-size: 16px; letter-spacing: 1.5px; }
 }
 @media (max-width: 360px) {
-  .hero { padding: 20px 0 28px; }
-  .hero-photo { padding: 20px 0 28px; }
-  .hero-photo .breadcrumb { margin-bottom: 10px; }
-  h1 { font-size: 30px; }
-  .eyebrow { letter-spacing: 1px; margin-bottom: 8px; }
-  .hero-buttons { margin-top: 12px; }
+  /* P2-1 fix 2026-11-13: Button 2 must clear the 568px fold at 320px.
+     Measured worst bottom was 659px (drywall) — the stack above the buttons
+     (header 136 + breadcrumb 98 + eyebrow 95 + 4-line H1 134) was the cause,
+     not the buttons. Tighten only at <=360px so 390px+ is untouched. */
+  .hero { padding: 12px 0 28px; }
+  .hero-photo { padding: 12px 0 28px; }
+  .hero-photo .breadcrumb { margin-bottom: 6px; }
+  .breadcrumb li { font-size: 14px; line-height: 1.75; }
+  /* Cycle 2 fix P3-2 follow-up (recovery, 2026-11-14): the line-height
+     fix above gives the Home link a 24.5px LINE box, but an inline <a>
+     still measures a 19px element box (font content height), so the
+     "Home >=24px @320" criterion failed 0/19 on re-measurement.
+     inline-block makes the anchor's box the line box (24.5px) with no
+     visual change — same text, same baseline, breadcrumb row +~5.5px
+     at <=360px only. Scoped to breadcrumb links at <=360px. */
+  .breadcrumb li a { display: inline-block; }
+  .breadcrumb ol { gap: 4px; }
+  .tab-section { padding: 32px 0; }
+  h1 { font-size: 27px; }
+  .hero h1 { margin-bottom: 12px; }
+  .eyebrow { letter-spacing: 0.5px; margin-bottom: 6px; font-size: 14px; line-height: 1.4; }
+  .eyebrow::before { width: 20px; }
+  .hero-buttons { margin-top: 8px; gap: 10px; }
+  .hero-buttons .btn { min-height: 48px; }
+  .header-inner { gap: 12px; }
+  /* SEO audit 2, P3-1 (2026-11-13): header phone link measured 133x39px
+     at 320px — below the 44px tap-target guideline on all 20 pages.
+     min-height 44px (border-box so padding is inside the 44px) + vertical
+     centring. Scoped to <=360px only; 390px+ already measures >=44px. */
+  .header-phone { padding: 6px 10px; font-size: 16px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; }
+}
+
+/* Reduced motion: kill transitions and smooth scrolling. Placed last so
+   it overrides the base rules above. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
 }

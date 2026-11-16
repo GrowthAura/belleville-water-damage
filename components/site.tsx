@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SITE, SERVICES, HERO } from "@/lib/content";
+import type { Seg } from "@/lib/tab-pages";
 
 export const TEL_HREF = `tel:${SITE.phoneTel}`;
 
@@ -22,25 +23,28 @@ export function Reveal({ children, className = "" }: {
 /* ---------- hero buttons: Button 1 and Button 2, exactly equal ----------
    Same class, same height/padding/font/weight — only the colour differs.
    Button 1 carries ONLY the phone number. ---------- */
-export function HeroButtons() {
+export function HeroButtons({ label = "Get Emergency Help" }: { label?: string }) {
   return (
     <p className="hero-buttons">
       <a className="btn btn-call" href={TEL_HREF}>
         {SITE.phoneDisplay}
       </a>
       <a className="btn btn-help" href={TEL_HREF}>
-        Get Emergency Help
+        {label}
       </a>
     </p>
   );
 }
 
-/* ---------- photo hero: ONE pattern on all 17 pages.
+/* ---------- photo hero: ONE pattern on all 20 pages.
    Order: breadcrumb (inner pages) -> eyebrow -> H1 (verbatim, exactly 1) ->
    INTRO inside the hero (verbatim) -> the 2 equal buttons.
    The hero image is a darkened photographic background (LCP image, preloaded
    automatically by Next from fetchPriority="high"). Content is never hidden
-   by animation. ---------- */
+   by animation.
+   image === null (Services hub / About / Contact — the Doc gives those tabs
+   no photo): solid dark hero, same classes, no <img>. No photo is reused
+   from another page to fill the slot. ---------- */
 export function PhotoHero({
   image,
   alt,
@@ -48,31 +52,39 @@ export function PhotoHero({
   h1,
   intro,
   breadcrumb,
+  cta2 = "Get Emergency Help",
 }: {
-  image: string;
+  image: string | null;
   alt: string;
   eyebrow: string;
   h1: string;
   intro: string;
   breadcrumb?: ReactNode;
+  cta2?: string;
 }) {
+  // DESIGN 10x 2026-11-13: no-photo pages get .hero-solid (brick-toned
+  // depth via CSS gradients) — same hero, same words, no borrowed photo.
   return (
-    <section className="hero hero-photo">
-      <img
-        className="hero-img"
-        src={image}
-        alt={alt}
-        width={1600}
-        height={900}
-        fetchPriority="high"
-      />
-      <div className="hero-shade" aria-hidden="true" />
+    <section className={`hero hero-photo${image ? "" : " hero-solid"}`}>
+      {image ? (
+        <>
+          <img
+            className="hero-img"
+            src={image}
+            alt={alt}
+            width={1600}
+            height={900}
+            fetchPriority="high"
+          />
+          <div className="hero-shade" aria-hidden="true" />
+        </>
+      ) : null}
       <div className="wrap hero-content">
         {breadcrumb}
         <p className="eyebrow">{eyebrow}</p>
         <h1>{h1}</h1>
         <p className="intro">{intro}</p>
-        <HeroButtons />
+        <HeroButtons label={cta2} />
       </div>
     </section>
   );
@@ -85,10 +97,30 @@ export function CardImage({ src, alt }: { src: string; alt: string }) {
       className="card-img"
       src={src}
       alt={alt}
-      width={1200}
-      height={675}
+      width={720}
+      height={405}
       loading="lazy"
     />
+  );
+}
+
+/* ---------- rich paragraph: Doc-verbatim text with link annotations
+   resolved to <Link>s at generation time (see lib/tab-pages.ts).
+   Plain strings render as text; {a, h} segments render as links.
+   The parenthetical path itself never renders. ---------- */
+export function RichPara({ segs }: { segs: Seg[] }) {
+  return (
+    <p>
+      {segs.map((s, i) =>
+        typeof s === "string" ? (
+          s
+        ) : (
+          <Link key={i} href={s.h}>
+            {s.a}
+          </Link>
+        )
+      )}
+    </p>
   );
 }
 
@@ -254,6 +286,15 @@ export function Footer() {
           referrerPolicy="no-referrer-when-downgrade"
           loading="lazy"
         />
+        <p className="footer-map-fallback">
+          <a
+            href="https://www.google.com/maps?q=Belleville%2C+IL+62220"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open map of Belleville, IL 62220
+          </a>
+        </p>
       </div>
       <div className="wrap footer-grid">
         <div>
@@ -283,6 +324,15 @@ export function Footer() {
           <p className="footer-h">Emergency Help</p>
           <ul>
             <li>
+              <Link href="/services">Services</Link>
+            </li>
+            <li>
+              <Link href="/about">About</Link>
+            </li>
+            <li>
+              <Link href="/contact">Contact</Link>
+            </li>
+            <li>
               <Link href="/#services">All Belleville Services</Link>
             </li>
             <li>
@@ -298,6 +348,11 @@ export function Footer() {
         <p>
           Water Damage Restoration Belleville, IL · Belleville, IL 62220 ·{" "}
           <a href={TEL_HREF}>{SITE.phoneDisplay}</a>
+        </p>
+        <p className="footer-credits">
+          Photo credit: Buckled hardwood floor photo on the Hardwood Floor
+          Water Damage page · Photo: Raimond Spekking, Wikimedia Commons,
+          CC BY-SA 4.0.
         </p>
       </div>
     </footer>
@@ -357,17 +412,17 @@ export function JsonLd({ data }: { data: object }) {
   );
 }
 
-/* ---------- trust band: the Doc's 4 badges, verbatim ---------- */
+/* ---------- trust band: the Doc's 4 badges, verbatim ----------
+   Cycle 1 fix I-2: the "·" separators dangled at line starts on mobile
+   (flex wrap + nowrap spans). Each badge is now its own flex item with
+   a gap — no separator characters, badges wrap as wholes. */
 export function TrustBand() {
   return (
     <div className="trust-band">
       <div className="wrap">
         <p>
-          {HERO.trust.map((t, i) => (
-            <span key={t}>
-              {i > 0 ? " · " : ""}
-              ✓ {t}
-            </span>
+          {HERO.trust.map((t) => (
+            <span key={t}>✓ {t}</span>
           ))}
         </p>
       </div>

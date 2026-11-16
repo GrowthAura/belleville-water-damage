@@ -17,8 +17,10 @@ import {
   FINAL_CTA,
   HERO_IMAGE,
   CARD_IMAGE,
+  absoluteAsset,
   schemaBusiness,
   schemaWebSite,
+  heroImageObject,
 } from "@/lib/content";
 import {
   HeroButtons,
@@ -37,14 +39,17 @@ export const metadata: Metadata = {
   // (exactly one of each). No `url` in openGraph here, and none in the
   // root layout either, or Next would emit a second slash-less og:url.
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: SITE.brand,
     title: SITE.metaTitle,
     description: SITE.metaDescription,
-    images: [{ url: SITE.base + HERO_IMAGE.home.src, alt: HERO_IMAGE.home.alt }],
+    images: [{ url: absoluteAsset(HERO_IMAGE.home.src), alt: HERO_IMAGE.home.alt }],
   },
   twitter: {
     title: SITE.metaTitle,
     description: SITE.metaDescription,
-    images: [SITE.base + HERO_IMAGE.home.src],
+    images: [absoluteAsset(HERO_IMAGE.home.src)],
   },
 };
 
@@ -61,11 +66,20 @@ const homeGraph = {
       "@type": "WebPage",
       "@id": SITE.base + "/#webpage",
       url: SITE.base + "/",
-      name: SITE.metaTitle,
+      // Cycle 1 fix P3-1: name follows the visible <h1> (HERO.h1), as on
+      // all 19 tab pages — not the <title> (SITE.metaTitle).
+      name: HERO.h1,
       description: SITE.metaDescription,
+      inLanguage: "en",
       isPartOf: { "@id": SITE.base + "/#website" },
+      // Cycle 1 fix #3: link the WebPage node to its BreadcrumbList.
+      breadcrumb: { "@id": SITE.base + "/#breadcrumbs" },
       about: { "@id": SITE.base + "/#business" },
-      primaryImageOfPage: SITE.base + HERO_IMAGE.home.src,
+      // Cycle 2 fix #2: homepage WebPage mainEntity → business @id,
+      // mirroring the About/Contact pattern.
+      mainEntity: { "@id": SITE.base + "/#business" },
+      // Cycle 1 fix #8: ImageObject (contentUrl + 1600x900 + caption).
+      primaryImageOfPage: heroImageObject("home"),
       speakable: {
         "@type": "SpeakableSpecification",
         cssSelector: [".hero p.intro", ".faq-item h3"],
@@ -74,6 +88,7 @@ const homeGraph = {
     {
       "@type": "FAQPage",
       "@id": SITE.base + "/#faq",
+      inLanguage: "en",
       mainEntity: FAQ.map((f) => ({
         "@type": "Question",
         name: f.q,
@@ -83,6 +98,7 @@ const homeGraph = {
     {
       "@type": "BreadcrumbList",
       "@id": SITE.base + "/#breadcrumbs",
+      inLanguage: "en",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: SITE.base + "/" },
       ],
@@ -91,6 +107,7 @@ const homeGraph = {
       "@type": "HowTo",
       "@id": SITE.base + "/#howto",
       name: PROCESS.h2,
+      inLanguage: "en",
       step: PROCESS.steps.map((s) => ({
         "@type": "HowToStep",
         name: s.h3,
@@ -183,7 +200,9 @@ export default function HomePage() {
           <div className="card-grid">
             {individual.map((s) => (
               <article className="card" key={s.slug}>
-                <CardImage src={CARD_IMAGE[s.slug].src} alt={CARD_IMAGE[s.slug].alt} />
+                {CARD_IMAGE[s.slug] ? (
+                  <CardImage src={CARD_IMAGE[s.slug].src} alt={CARD_IMAGE[s.slug].alt} />
+                ) : null}
                 <div className="card-body">
                   <h3>{s.h3}</h3>
                   <p>{s.summary}</p>
@@ -202,13 +221,14 @@ export default function HomePage() {
                   const s = SERVICES.find((x) => x.slug === slug)!;
                   return (
                     <article className="card" key={slug}>
-                      <CardImage
-                        src={CARD_IMAGE[slug].src}
-                        alt={CARD_IMAGE[slug].alt}
-                      />
+                      {CARD_IMAGE[slug] ? (
+                        <CardImage
+                          src={CARD_IMAGE[slug].src}
+                          alt={CARD_IMAGE[slug].alt}
+                        />
+                      ) : null}
                       <div className="card-body">
                         <p className="card-title">{s.anchor}</p>
-                        <p>{g.h3}</p>
                         <Link className="card-link" href={`/services/${slug}`}>
                           {s.anchor}
                         </Link>
