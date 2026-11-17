@@ -17,6 +17,38 @@ export const dynamic = "force-static";
 // their full Doc content on 2026-11-12.
 const LASTMOD_HOME = "2026-11-11";
 const LASTMOD_FILL = "2026-11-12";
+// POLISH 2026-11-17 (his order 2026-11-17 ~00:03 PKT): lastmod 2026-11-17
+// goes ONLY on the routes this round actually changed — decided per route
+// by diffing the built HTML against the design-round build in
+// qa/polish-baseline-out/ (see qa/FIX-polish-2026-11-16.md). Unchanged
+// routes keep their old dates; stamping an unchanged route would be the
+// mass-content signal the stagger exists to avoid. The shared template
+// (header/footer/CSS/widths) changed every page's rendered output, so
+// the set below is expected to be all 20 — verified by the diff, not
+// assumed.
+const LASTMOD_POLISH = "2026-11-17";
+const POLISH_CHANGED: ReadonlySet<string> = new Set<string>([
+  "/",
+  "/services",
+  "/about",
+  "/contact",
+  "/services/emergency-water-removal",
+  "/services/basement-flood-cleanup",
+  "/services/sewer-backup-cleanup",
+  "/services/sump-pump-failure-cleanup",
+  "/services/burst-pipe-water-damage",
+  "/services/mold-remediation",
+  "/services/flood-damage-restoration",
+  "/services/ceiling-water-damage-repair",
+  "/services/drywall-plaster-water-damage-repair",
+  "/services/crawl-space-water-removal",
+  "/services/water-heater-appliance-leak-cleanup",
+  "/services/hardwood-floor-water-damage",
+  "/services/commercial-water-damage-restoration",
+  "/services/apartment-rental-water-damage",
+  "/services/toilet-overflow-cleanup",
+  "/services/water-damage-insurance-claims",
+]);
 
 // Per-route image sets — EXACTLY the images rendered on that page, no
 // invented URLs (SEO audit 1, P2-2 fix, 2026-11-13):
@@ -53,7 +85,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return ALL_ROUTES.map((route) => {
     const entry: MetadataRoute.Sitemap[number] = {
       url: `${SITE.base}${route === "/" ? "/" : route}`,
-      lastModified: route === "/" ? LASTMOD_HOME : LASTMOD_FILL,
+      lastModified: POLISH_CHANGED.has(route)
+        ? LASTMOD_POLISH
+        : route === "/"
+          ? LASTMOD_HOME
+          : LASTMOD_FILL,
     };
     const images = imagesForRoute(route);
     if (images) entry.images = images;

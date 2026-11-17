@@ -7,7 +7,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.base),
   title: SITE.metaTitle,
   description: SITE.metaDescription,
-  icons: { icon: `${ASSET_PREFIX}/favicon.svg` },
+  icons: {
+    icon: [
+      { url: `${ASSET_PREFIX}/favicon.svg`, type: "image/svg+xml" },
+      { url: `${ASSET_PREFIX}/favicon.ico`, sizes: "48x48", type: "image/x-icon" },
+    ],
+    apple: `${ASSET_PREFIX}/apple-touch-icon.png`,
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

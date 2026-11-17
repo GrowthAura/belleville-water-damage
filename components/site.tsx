@@ -6,7 +6,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { SITE, SERVICES, HERO } from "@/lib/content";
+import { SITE, SERVICES, HERO, ASSET_PREFIX } from "@/lib/content";
 import type { Seg } from "@/lib/tab-pages";
 
 export const TEL_HREF = `tel:${SITE.phoneTel}`;
@@ -64,6 +64,17 @@ export function PhotoHero({
 }) {
   // DESIGN 10x 2026-11-13: no-photo pages get .hero-solid (brick-toned
   // depth via CSS gradients) — same hero, same words, no borrowed photo.
+  // 10X 2026-11-17 (SI lever): responsive hero. The 1600w file is served to
+  // wide viewports only; 1200w/800w derivatives (same photo, same GPS EXIF)
+  // cover tablets/phones — mobile 390px DPR2 fetches the 800w file (~40%
+  // of the 1600w bytes). sizes="100vw": the hero img is full-bleed.
+  // NOTE: no explicit <link rel=preload> here — Next auto-emits one for
+  // this fetchPriority="high" img, and with srcSet present it carries the
+  // imagesrcset (verified in built HTML: exactly one image preload, mobile
+  // preloads the 800w candidate). An explicit link only duplicated it.
+  const heroSrcSet = image
+    ? `${image.replace(/\.webp$/, "-800.webp")} 800w, ${image.replace(/\.webp$/, "-1200.webp")} 1200w, ${image} 1600w`
+    : null;
   return (
     <section className={`hero hero-photo${image ? "" : " hero-solid"}`}>
       {image ? (
@@ -71,10 +82,13 @@ export function PhotoHero({
           <img
             className="hero-img"
             src={image}
+            srcSet={heroSrcSet!}
+            sizes="100vw"
             alt={alt}
             width={1600}
             height={900}
             fetchPriority="high"
+            decoding="async"
           />
           <div className="hero-shade" aria-hidden="true" />
         </>
@@ -90,16 +104,23 @@ export function PhotoHero({
   );
 }
 
-/* ---------- photographic card image: 16:9, height auto ---------- */
+/* ---------- photographic card image: 16:9, height auto ----------
+   10X 2026-11-17 (SI lever): responsive srcset. Cards render ~419px wide
+   on desktop (3-col), 2-col <=900px, 1-col <=600px; the -430.webp
+   derivative (same photo, same GPS EXIF) serves DPR1 desktops at ~half
+   the bytes, 720w covers DPR2/mobile. sizes matches the real slots. */
 export function CardImage({ src, alt }: { src: string; alt: string }) {
   return (
     <img
       className="card-img"
       src={src}
+      srcSet={`${src.replace(/\.webp$/, "-430.webp")} 430w, ${src} 720w`}
+      sizes="(max-width: 600px) calc(100vw - 48px), (max-width: 900px) 50vw, 419px"
       alt={alt}
       width={720}
       height={405}
       loading="lazy"
+      decoding="async"
     />
   );
 }
@@ -124,10 +145,20 @@ export function RichPara({ segs }: { segs: Seg[] }) {
   );
 }
 
-/* ---------- header: mobile menu button 46px, Escape closes ---------- */
+/* ---------- header: mobile menu button 46px, Escape closes ----------
+   POLISH 2026-11-16 (orders 7-8): the header nav is Home + a Services
+   dropdown listing ONLY the 7 core services + About Us + Contact Us.
+   The dropdown is a hover/focus panel on desktop and an expanded list
+   in the mobile menu (CSS in globals.css). The other 9 services live
+   in the footer only. */
 const HEADER_SERVICES = [
   "emergency-water-removal",
+  "basement-flood-cleanup",
   "sewer-backup-cleanup",
+  "sump-pump-failure-cleanup",
+  "burst-pipe-water-damage",
+  "mold-remediation",
+  "flood-damage-restoration",
 ];
 
 export function Header() {
@@ -198,7 +229,7 @@ export function Header() {
             <svg viewBox="0 0 32 32" width="30" height="30">
               <path
                 d="M16 3C16 3 6 14 6 20a10 10 0 0 0 20 0C26 14 16 3 16 3Z"
-                fill="#7a2e1d"
+                fill="#8a2f16"
               />
             </svg>
           </span>
@@ -221,21 +252,54 @@ export function Header() {
           >
             Home
           </Link>
-          {HEADER_SERVICES.map((slug) => {
-            const s = SERVICES.find((x) => x.slug === slug)!;
-            return (
-              <Link
-                key={slug}
-                href={`/services/${slug}`}
-                onClick={() => {
-                  navigatingRef.current = true;
-                  setMenuOpen(false);
-                }}
-              >
-                {s.anchor}
-              </Link>
-            );
-          })}
+          <div className="nav-drop">
+            <Link
+              href="/services"
+              aria-haspopup="true"
+              onClick={() => {
+                navigatingRef.current = true;
+                setMenuOpen(false);
+              }}
+            >
+              Services
+            </Link>
+            <ul className="nav-drop-menu">
+              {HEADER_SERVICES.map((slug) => {
+                const s = SERVICES.find((x) => x.slug === slug)!;
+                return (
+                  <li key={slug}>
+                    <Link
+                      href={`/services/${slug}`}
+                      onClick={() => {
+                        navigatingRef.current = true;
+                        setMenuOpen(false);
+                      }}
+                    >
+                      {s.anchor}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <Link
+            href="/about"
+            onClick={() => {
+              navigatingRef.current = true;
+              setMenuOpen(false);
+            }}
+          >
+            About Us
+          </Link>
+          <Link
+            href="/contact"
+            onClick={() => {
+              navigatingRef.current = true;
+              setMenuOpen(false);
+            }}
+          >
+            Contact Us
+          </Link>
         </nav>
         <button
           type="button"
@@ -256,7 +320,14 @@ export function Header() {
   );
 }
 
-/* ---------- footer: map on every page (no area pages in this build) ---------- */
+/* ---------- footer: map on every page (no area pages in this build) ----------
+   POLISH 2026-11-16 (order 9): FOOTER_SERVICES is ALL 16 services —
+   the 7 core services plus the other 9, which moved here from nowhere
+   (they were footer-absent in the design-fix round). "Only important"
+   + "rest in footer" reconciles as: the footer holds all 16 services
+   + important pages only otherwise (Home / Services / About / Contact
+   in the Help column, map, photo credit). Two-column layout keeps the
+   16-link column compact (see globals.css). */
 const FOOTER_SERVICES = [
   "emergency-water-removal",
   "basement-flood-cleanup",
@@ -280,12 +351,36 @@ export function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-map">
-        <iframe
-          title="Map: Belleville, IL 62220"
-          src="https://www.google.com/maps?q=Belleville%2C%20IL%2062220&output=embed"
-          referrerPolicy="no-referrer-when-downgrade"
-          loading="lazy"
-        />
+        {/* Static OSM map image (built from tiles, Belleville IL
+            ~38.5201,-89.9840, z13, brick pin at centre) — the Google
+            Maps iframe rendered empty/grey. The whole image links to
+            Google Maps; attribution stays visible underneath. */}
+        <a
+          className="footer-map-link"
+          href="https://www.google.com/maps?q=Belleville%2C+IL+62220"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open map of Belleville, IL 62220 in Google Maps"
+        >
+          <img
+            src={ASSET_PREFIX + "/map/belleville-il.jpg"}
+            alt="Map of Belleville, IL 62220"
+            width={1280}
+            height={640}
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
+        <p className="footer-map-attrib">
+          Map data ©{" "}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+          >
+            OpenStreetMap contributors
+          </a>
+        </p>
         <p className="footer-map-fallback">
           <a
             href="https://www.google.com/maps?q=Belleville%2C+IL+62220"
@@ -323,6 +418,9 @@ export function Footer() {
         <nav aria-label="Help">
           <p className="footer-h">Emergency Help</p>
           <ul>
+            <li>
+              <Link href="/">Home</Link>
+            </li>
             <li>
               <Link href="/services">Services</Link>
             </li>

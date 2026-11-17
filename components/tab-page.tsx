@@ -125,6 +125,18 @@ const PROCEDURE_HOWTOS: Record<
   },
 };
 
+/** HowTo `tool` arrays (DESIGN-FIX 2026-11-16, Cycle 3 #1): every tool
+    name comes from the page's own HowTo step texts only — re-measured
+    in the Cycle 3 schema audit from the schema step texts. Home's array
+    lives in app/page.tsx (same 5 tools + Moisture meters). */
+const HOWTO_TOOLS: Record<string, string[]> = {
+  "flood-damage-restoration": ["Pumps", "Extractors", "Dehumidifiers", "Air movers"],
+  "basement-flood-cleanup": ["Pumps", "Extractors", "Dehumidifiers", "Air movers"],
+  "sewer-backup-cleanup": ["Pumps", "Dehumidifiers", "Air movers"],
+  "sump-pump-failure-cleanup": ["Pumps", "Dehumidifiers", "Air movers"],
+  "crawl-space-water-removal": ["Pumps", "Dehumidifiers", "Air movers"],
+};
+
 function procedureHowToSteps(
   page: TabPage
 ): { h2: string; steps: { name: string; text: string }[] } | null {
@@ -283,6 +295,9 @@ export function TabPageView({
       "@id": url + "#howto",
       name: howTo.h2,
       inLanguage: "en",
+      // DESIGN-FIX 2026-11-16 (Cycle 3 #1): tool array from the step
+      // texts only (HOWTO_TOOLS above); omitted if a page has none.
+      ...(HOWTO_TOOLS[page.key] ? { tool: HOWTO_TOOLS[page.key] } : {}),
       step: howTo.steps.map((s) => ({
         "@type": "HowToStep",
         name: s.name,
@@ -360,7 +375,7 @@ export function TabPageView({
                     <div
                       className={`media-split ${
                         imgIndex % 2 === 0 ? "media-right" : "media-left"
-                      }`}
+                      }${img.size ? ` media-${img.size}` : ""}`}
                     >
                       <div className="media-text">
                         {rest.map((b, i) =>
@@ -376,9 +391,22 @@ export function TabPageView({
                       <figure className="media-figure">
                         <img
                           src={ASSET_PREFIX + img.file}
-                          width={1020}
-                          height={680}
+                          srcSet={
+                            (img.w ?? 1020) === 1020
+                              ? `${ASSET_PREFIX + img.file.replace(/\.webp$/, "-720.webp")} 720w, ${ASSET_PREFIX + img.file} 1020w`
+                              : undefined
+                          }
+                          sizes={
+                            img.size === "small"
+                              ? "(max-width: 768px) calc(100vw - 48px), 448px"
+                              : img.size === "xs"
+                                ? "(max-width: 768px) calc(100vw - 48px), 320px"
+                                : "(max-width: 768px) calc(100vw - 48px), 600px"
+                          }
+                          width={img.w ?? 1020}
+                          height={img.h ?? 680}
                           loading="lazy"
+                          decoding="async"
                           alt={img.alt}
                         />
                       </figure>

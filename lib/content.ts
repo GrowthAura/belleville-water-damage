@@ -152,6 +152,10 @@ export function schemaWebSite() {
     // description — a traced literal, no invention.
     description: SITE.metaDescription,
     inLanguage: "en",
+    // DESIGN-FIX 2026-11-16 (Cycle 3 #2): WebSite `about` -> business @id,
+    // matching the homepage WebPage and hub CollectionPage (existing @id,
+    // zero new literals).
+    about: { "@id": SITE.base + "/#business" },
   };
 }
 
@@ -564,15 +568,19 @@ export const CARD_IMAGE: Record<string, PageImage> = {
     src: ASSET_PREFIX + "/images/cards/burst-pipe-water-damage.webp",
     alt: "Water flowing from industrial pipes against a clear sky",
   },
-  // CYCLE 1 FIX 2026-11-13 (qa/CYCLE1-images-audit-2026-11-13.md P1-2):
-  // mold-remediation card REMOVED — Pexels 4099087 is Broken Arrow's LIVE
-  // homepage card + sewage hero (same photo, viewed full-size). No fresh
-  // mold photo passed full nets (all Pexels mold candidates are the same
-  // 4098xxx shoot as the banned photo, or the same Buonarroti fogging
-  // shoot as our own mold hero 4176610) — slot honestly EMPTY. The
-  // homepage renders the mold card without an image (page.tsx guards
-  // CARD_IMAGE[slug]); the sitemap skips unwired cards. File quarantined
-  // in qa/removed-cycle1/mold-remediation.webp. Do NOT re-add 4099087.
+  // POLISH ROUND 2026-11-16 (qa/FIX-polish-2026-11-16.md order 10):
+  // mold-remediation card = hero==card DERIVATION of our own mold hero
+  // Pexels 4176610 (straight 16:9 resize, no crop; 720x405, webp q80).
+  // Branch (b): no distinct fresh candidate passed (4098xxx shoot =
+  // banned 4099087 family; Buonarroti fogging = hero's own shoot);
+  // derivation passes full nets (md5 0 hits + aHash/dHash 0 flags vs
+  // 86,282-file corpus incl. export dirs; Pexels-ID net: 4176610
+  // installed on NO past site) + 101% relevant. Banned 4099087 stays
+  // quarantined in qa/removed-cycle1/ — do NOT re-add.
+  "mold-remediation": {
+    src: ASSET_PREFIX + "/images/cards/mold-remediation.webp",
+    alt: "Worker in a white protective suit fogging a living room during mold treatment",
+  },
   "flood-damage-restoration": {
     src: ASSET_PREFIX + "/images/cards/flood-damage-restoration.webp",
     alt: "Large dark water stain spreading across a damaged interior wall",

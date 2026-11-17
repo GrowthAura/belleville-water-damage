@@ -108,6 +108,10 @@ const homeGraph = {
       "@id": SITE.base + "/#howto",
       name: PROCESS.h2,
       inLanguage: "en",
+      // DESIGN-FIX 2026-11-16 (Cycle 3 #1): tools named in the step
+      // texts only (pump, extractor, dehumidifier, air mover, moisture
+      // meter — re-measured in the Cycle 3 schema audit).
+      tool: ["Pumps", "Extractors", "Dehumidifiers", "Air movers", "Moisture meters"],
       step: PROCESS.steps.map((s) => ({
         "@type": "HowToStep",
         name: s.h3,
