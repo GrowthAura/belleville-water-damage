@@ -456,7 +456,7 @@ main .section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
 .footer-map-attrib a { color: var(--muted); display: inline-block; min-height: 44px; }
 .footer-map-fallback { margin: 0; padding: 8px 24px 12px; text-align: center; font-size: 18px; font-weight: 700; background: var(--white); }
 .footer-map-fallback a { color: var(--brick); }
-.footer-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 40px; padding: 56px 24px 40px; }
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; padding: 56px 24px 40px; }
 .footer-brand { font-family: Georgia, "Times New Roman", serif; font-size: 21px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
 .footer-h { font-size: 18px; font-weight: 800; color: var(--gold-light); margin-bottom: 14px; letter-spacing: 0.5px; }
 .footer-h::after {
@@ -464,11 +464,6 @@ main .section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
   background: var(--brass); border-radius: 2px;
 }
 .site-footer ul { list-style: none; padding: 0; margin: 0; }
-/* Cycle 1 fix I-3: the 16-link Services column ran ~800px and made the
-   footer 1,666px tall — two columns halve it. Single column again on
-   narrow screens so long anchors don't squeeze. */
-.site-footer nav[aria-label="Services"] ul { columns: 2; column-gap: 32px; }
-.site-footer nav[aria-label="Services"] li { break-inside: avoid; }
 .site-footer li { margin-bottom: 6px; }
 .site-footer a { color: #f0e6d6; display: inline-block; padding: 9px 0; } /* P3-3 fix 2026-11-13: 43px -> ~49px tap target (>=44px guideline); was 6px */
 /* Cycle 2 fix P3-1 (2026-11-14): the fallback rule at :348
@@ -480,12 +475,8 @@ main .section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
 .site-footer a:hover { color: var(--gold-light); }
 .footer-base { border-top: 1px solid rgba(255,255,255,.2); padding: 20px 24px 96px; }
 .footer-base p { margin: 0; }
-/* P1-1 fix 2026-11-13: visible CC BY-SA photo credit (footer fine print).
-   The buckled-hardwood-floor body photo on the Hardwood Floor Water Damage
-   page is Wikimedia Commons File:Wasserschaden_Kölnisches_Stadtmuseum_
-   Juni_2017-5560.jpg (Raimond Spekking, CC BY-SA 4.0); the licence needs
-   attribution in visible text, not alt text alone. */
-.footer-credits { font-size: 13px; opacity: .8; margin-top: 10px; }
+/* Photo credit removed 2026-11-17 per his order (footer fine print gone);
+   the hardwood photo itself stays on its page. */
 
 /* ---------- sticky mobile call bar ---------- */
 .sticky-bar { display: none; }
@@ -578,7 +569,6 @@ main .section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
   .header-inner { flex-wrap: wrap; }
   .brand { flex: 1 1 100%; }
   .footer-grid { grid-template-columns: 1fr; }
-  .site-footer nav[aria-label="Services"] ul { columns: 1; }
   .btn { width: 100%; }
   .hero-buttons { flex-direction: column; max-width: none; }
   .steps li { padding: 20px 20px 20px 72px; }

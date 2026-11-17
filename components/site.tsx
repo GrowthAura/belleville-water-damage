@@ -321,31 +321,10 @@ export function Header() {
 }
 
 /* ---------- footer: map on every page (no area pages in this build) ----------
-   POLISH 2026-11-16 (order 9): FOOTER_SERVICES is ALL 16 services —
-   the 7 core services plus the other 9, which moved here from nowhere
-   (they were footer-absent in the design-fix round). "Only important"
-   + "rest in footer" reconciles as: the footer holds all 16 services
-   + important pages only otherwise (Home / Services / About / Contact
-   in the Help column, map, photo credit). Two-column layout keeps the
-   16-link column compact (see globals.css). */
-const FOOTER_SERVICES = [
-  "emergency-water-removal",
-  "basement-flood-cleanup",
-  "sewer-backup-cleanup",
-  "sump-pump-failure-cleanup",
-  "burst-pipe-water-damage",
-  "mold-remediation",
-  "flood-damage-restoration",
-  "ceiling-water-damage-repair",
-  "drywall-plaster-water-damage-repair",
-  "hardwood-floor-water-damage",
-  "crawl-space-water-removal",
-  "water-heater-appliance-leak-cleanup",
-  "toilet-overflow-cleanup",
-  "commercial-water-damage-restoration",
-  "apartment-rental-water-damage",
-  "water-damage-insurance-claims",
-];
+   2026-11-17 (his order "footer ma only important pages add kro"):
+   the footer holds ONLY the important pages (Home / Services / About /
+   Contact) — the 16-service column was removed. Map + brand + NAP line
+   stay (not pages; map confirmed present in the polish round). */
 
 export function Footer() {
   return (
@@ -402,21 +381,8 @@ export function Footer() {
             <a href={TEL_HREF}>{SITE.phoneDisplay}</a>
           </p>
         </div>
-        <nav aria-label="Services">
-          <p className="footer-h">Services</p>
-          <ul>
-            {FOOTER_SERVICES.map((slug) => {
-              const s = SERVICES.find((x) => x.slug === slug)!;
-              return (
-                <li key={slug}>
-                  <Link href={`/services/${slug}`}>{s.anchor}</Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-        <nav aria-label="Help">
-          <p className="footer-h">Emergency Help</p>
+        <nav aria-label="Important Pages">
+          <p className="footer-h">Important Pages</p>
           <ul>
             <li>
               <Link href="/">Home</Link>
@@ -430,15 +396,6 @@ export function Footer() {
             <li>
               <Link href="/contact">Contact</Link>
             </li>
-            <li>
-              <Link href="/#services">All Belleville Services</Link>
-            </li>
-            <li>
-              <Link href="/#faq">Belleville Water Damage Questions</Link>
-            </li>
-            <li>
-              <a href={TEL_HREF}>Call {SITE.phoneDisplay}</a>
-            </li>
           </ul>
         </nav>
       </div>
@@ -446,11 +403,6 @@ export function Footer() {
         <p>
           Water Damage Restoration Belleville, IL · Belleville, IL 62220 ·{" "}
           <a href={TEL_HREF}>{SITE.phoneDisplay}</a>
-        </p>
-        <p className="footer-credits">
-          Photo credit: Buckled hardwood floor photo on the Hardwood Floor
-          Water Damage page · Photo: Raimond Spekking, Wikimedia Commons,
-          CC BY-SA 4.0.
         </p>
       </div>
     </footer>
