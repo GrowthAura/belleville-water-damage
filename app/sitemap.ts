@@ -26,12 +26,15 @@ const LASTMOD_FILL = "2026-11-12";
 // (header/footer/CSS/widths) changed every page's rendered output, so
 // the set below is expected to be all 20 — verified by the diff, not
 // assumed.
+// SPLIT 2026-11-17 ~13:16 PKT (his order "half sitemap pr kall ka date
+// half pr aj ka"): the 20 changed routes are split 10/10 in sitemap
+// order — the FIRST 10 get yesterday 2026-11-16, the LAST 10 keep today
+// 2026-11-17.
+const LASTMOD_YESTERDAY = "2026-11-16";
 const LASTMOD_POLISH = "2026-11-17";
-const POLISH_CHANGED: ReadonlySet<string> = new Set<string>([
+const POLISH_YESTERDAY: ReadonlySet<string> = new Set<string>([
   "/",
   "/services",
-  "/about",
-  "/contact",
   "/services/emergency-water-removal",
   "/services/basement-flood-cleanup",
   "/services/sewer-backup-cleanup",
@@ -40,14 +43,18 @@ const POLISH_CHANGED: ReadonlySet<string> = new Set<string>([
   "/services/mold-remediation",
   "/services/flood-damage-restoration",
   "/services/ceiling-water-damage-repair",
+]);
+const POLISH_TODAY: ReadonlySet<string> = new Set<string>([
   "/services/drywall-plaster-water-damage-repair",
+  "/services/hardwood-floor-water-damage",
   "/services/crawl-space-water-removal",
   "/services/water-heater-appliance-leak-cleanup",
-  "/services/hardwood-floor-water-damage",
+  "/services/toilet-overflow-cleanup",
   "/services/commercial-water-damage-restoration",
   "/services/apartment-rental-water-damage",
-  "/services/toilet-overflow-cleanup",
   "/services/water-damage-insurance-claims",
+  "/about",
+  "/contact",
 ]);
 
 // Per-route image sets — EXACTLY the images rendered on that page, no
@@ -85,11 +92,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return ALL_ROUTES.map((route) => {
     const entry: MetadataRoute.Sitemap[number] = {
       url: `${SITE.base}${route === "/" ? "/" : route}`,
-      lastModified: POLISH_CHANGED.has(route)
-        ? LASTMOD_POLISH
-        : route === "/"
-          ? LASTMOD_HOME
-          : LASTMOD_FILL,
+      lastModified: POLISH_YESTERDAY.has(route)
+        ? LASTMOD_YESTERDAY
+        : POLISH_TODAY.has(route)
+          ? LASTMOD_POLISH
+          : route === "/"
+            ? LASTMOD_HOME
+            : LASTMOD_FILL,
     };
     const images = imagesForRoute(route);
     if (images) entry.images = images;
